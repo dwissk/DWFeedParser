@@ -959,6 +959,10 @@
 		}
 		
 	}
+    if (attributes && [attributes objectForKey:@"href"]!=nil){
+        [MWObject setLink:[attributes objectForKey:@"href"]]; // Can be added to MWFeedItem or MWFeedInfo
+        return YES;
+    }
 	return NO;
 }
 
