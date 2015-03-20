@@ -68,18 +68,19 @@
     if (ig_tidySaveBuffer(tdoc, &output) < 0) {
         return nil;
     }
-
-    html = [NSString stringWithUTF8String:(char *)output.bp];
-
     MWImageParser *parser = [[MWImageParser new] autorelease];
     parser.images = [NSMutableArray array];
-    dispatch_queue_t reentrantAvoidanceQueue = dispatch_queue_create("reentrantAvoidanceQueue", DISPATCH_QUEUE_SERIAL);
-    dispatch_async(reentrantAvoidanceQueue, ^{
-        parser.xmlParser = [[[NSXMLParser alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
-        parser.xmlParser.delegate = parser;
-        [parser.xmlParser parse];
-    });
-    dispatch_sync(reentrantAvoidanceQueue, ^{ });
+    if ((char *)output.bp){
+        html = [NSString stringWithUTF8String:(char *)output.bp];
+
+        dispatch_queue_t reentrantAvoidanceQueue = dispatch_queue_create("reentrantAvoidanceQueue", DISPATCH_QUEUE_SERIAL);
+        dispatch_async(reentrantAvoidanceQueue, ^{
+            parser.xmlParser = [[[NSXMLParser alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
+            parser.xmlParser.delegate = parser;
+            [parser.xmlParser parse];
+        });
+        dispatch_sync(reentrantAvoidanceQueue, ^{ });
+    }
     return parser.images;
 }
 
